@@ -1,0 +1,19 @@
+﻿# Company engineering standards.
+# Reviews check code against these thresholds.
+# Set any value to null (or delete the line) to skip that check.
+
+max_function_length: 20
+max_cyclomatic_complexity: 5
+max_cognitive_complexity: 10
+max_parameters: 5
+max_line_length: 120
+
+forbidden_calls:
+  - eval
+  - exec
+  - os.system
+
+forbidden_imports: []
+
+docstrings_required: false
+min_docstring_coverage_pct: 50

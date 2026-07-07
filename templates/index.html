@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Engineering Review Platform</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <header>
+        <h1>AI Engineering Review Platform</h1>
+        <p class="subtitle">A2UI-driven · MCP-powered</p>
+    </header>
+
+    <main>
+        <div class="input-section">
+            <textarea id="codeInput" placeholder="Paste your Python code here..."></textarea>
+
+            <div class="button-row">
+                <button onclick="runReview()" class="review-btn">Run Engineering Review</button>
+                <button id="refactorBtn" class="refactor-btn" onclick="runRefactor()">Generate Refactored Code</button>
+            </div>
+        </div>
+
+        <div id="output" class="output-section"></div>
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
