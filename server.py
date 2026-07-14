@@ -1,19 +1,26 @@
 ﻿import json
 from mcp.server.fastmcp import FastMCP
-
 from tools import (
     analyze_metrics,
     analyze_complexity,
     check_security,
     analyze_maintainability,
     check_company_rules as _check_company_rules,
+    compute_engineering_score,
+    detect_language,
+    language_label,
 )
 from core import run_review
 from ai_layer import generate_review_reasoning, generate_fixed_code
 
 mcp = FastMCP("AI Engineering Reviewer")
 
-
+@mcp.tool()
+def detect_code_language(code: str) -> dict:
+    """Detect the programming language of a code snippet. Returns language code and label."""
+    lang = detect_language(code)
+    return {"language": lang, "label": language_label(lang)}
+    
 @mcp.tool()
 def get_metrics(code: str) -> dict:
     """Compute size and structure metrics for the given code."""
@@ -48,6 +55,19 @@ def check_company_rules(code: str) -> dict:
         "maintainability": analyze_maintainability(code),
     }
     return _check_company_rules(code, review_data)
+
+
+@mcp.tool()
+def get_engineering_score(code: str) -> dict:
+    """Compute an overall engineering score (0-100) with per-category breakdown."""
+    review_data = {
+        "metrics": analyze_metrics(code),
+        "complexity": analyze_complexity(code),
+        "security": check_security(code),
+        "maintainability": analyze_maintainability(code),
+    }
+    rule_check = _check_company_rules(code, review_data)
+    return compute_engineering_score(review_data, rule_check)
 
 
 @mcp.tool()

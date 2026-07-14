@@ -2,29 +2,72 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Engineering Review Platform</title>
+
     <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
 
-    <header>
-        <h1>AI Engineering Review Platform</h1>
-        <p class="subtitle">A2UI-driven · MCP-powered</p>
-    </header>
+<header>
+    <h1>AI Engineering Review Platform</h1>
+    <p class="subtitle">A2UI-driven · MCP-powered</p>
+</header>
 
-    <main>
-        <div class="input-section">
-            <textarea id="codeInput" placeholder="Paste your Python code here..."></textarea>
+<main>
 
-            <div class="button-row">
-                <button onclick="runReview()" class="review-btn">Run Engineering Review</button>
-                <button id="refactorBtn" class="refactor-btn" onclick="runRefactor()">Generate Refactored Code</button>
-            </div>
+    <section class="input-section">
+
+        <textarea
+            id="codeInput"
+            placeholder="Paste your code here..."
+        ></textarea>
+
+        <div class="button-row">
+
+            <button
+                class="review-btn"
+                onclick="runReview()">
+                Run Engineering Review
+            </button>
+
+            <button
+                class="refactor-btn"
+                onclick="runRefactor()">
+                Generate Refactored Code
+            </button>
+
         </div>
 
-        <div id="output" class="output-section"></div>
-    </main>
+    </section>
 
-    <script src="/static/script.js"></script>
+    <section
+        id="output"
+        class="output-section">
+    </section>
+
+    <section
+        id="historySection"
+        class="history-section">
+
+        <h2>Recent Reviews</h2>
+
+        <div
+            id="historyPanel"
+            class="history-panel">
+
+            <p class="loading-text">
+                Loading review history...
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="/static/script.js"></script>
+
 </body>
 </html>

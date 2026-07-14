@@ -1,3 +1,6 @@
+from .language_detector import detect_language
+from .lang_java import analyze_java_maintainability
+from .lang_c_cpp import analyze_c_maintainability
 import ast
 from collections import Counter
 
@@ -20,7 +23,20 @@ def _finding(title, severity, line, reason, impact, recommendation):
     }
 
 
-def analyze_maintainability(code: str) -> dict:
+def analyze_maintainability(code: str, language: str = None) -> dict:
+    """
+    Analyze maintainability.
+    Python uses AST; other languages use regex heuristics.
+    """
+    if language is None:
+        language = detect_language(code)
+
+    if language == "java":
+        return analyze_java_maintainability(code)
+    if language in ("c", "cpp"):
+        return analyze_c_maintainability(code)
+
+    # Fall through to the existing Python analysis below
     findings = []
     lines = code.splitlines()
 

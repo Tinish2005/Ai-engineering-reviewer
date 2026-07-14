@@ -16,19 +16,36 @@ async function runReview() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code })
         });
+
         const result = await res.json();
+
         container.innerHTML = "";
+
         if (result.type === "error") {
-            container.innerHTML = "<p class=\"loading-text\">" + escapeHtml(result.message || "Error") + "</p>";
+            container.innerHTML =
+                "<p class=\"loading-text\">" +
+                escapeHtml(result.message || "Error") +
+                "</p>";
             return;
         }
-        renderComponents(result.components, container);
+
+        renderComponents(
+            result.components,
+            container
+        );
+
+        loadHistory();
+
     } catch (err) {
+
         container.innerHTML = "";
-        showLoading(container, "Review failed. Please try again.");
+
+        showLoading(
+            container,
+            "Review failed. Please try again."
+        );
     }
 }
-
 
 async function runRefactor() {
     const code = document.getElementById("codeInput").value.trim();
@@ -52,7 +69,7 @@ async function runRefactor() {
         });
         const component = await res.json();
         container.removeChild(loading);
-        renderCodeCard(component, container);
+        renderComponents([component], container);
     } catch (err) {
         loading.textContent = "Refactor failed. Please try again.";
     }
@@ -74,6 +91,7 @@ function renderComponents(components, container) {
     }
     components.forEach(function(c) {
         switch (c.type) {
+            case "score_card":      renderScoreCard(c, container); break;
             case "metric_card":     renderMetricCard(c, container); break;
             case "complexity_card": renderComplexityCard(c, container); break;
             case "finding_list":    renderFindingList(c, container); break;
@@ -82,9 +100,123 @@ function renderComponents(components, container) {
             case "card":            renderSimpleCard(c, container); break;
             case "ai_summary":      renderAISummary(c, container); break;
             case "code_card":       renderCodeCard(c, container); break;
+            case "diff_card":       renderDiffCard(c, container); break;
             default:                renderUnknown(c, container); break;
         }
     });
+}
+
+async function loadHistory() {
+
+    try {
+
+        const res =
+            await fetch("/history");
+
+        const rows =
+            await res.json();
+
+        const panel =
+            document.getElementById(
+                "historyPanel"
+            );
+
+        if (!panel) {
+            return;
+        }
+
+        panel.innerHTML = "";
+
+        if (!rows.length) {
+
+            panel.innerHTML =
+                `
+                <div class="card">
+                    No reviews yet.
+                </div>
+                `;
+
+            return;
+        }
+
+        rows.forEach(r => {
+
+            panel.innerHTML += `
+                <div class="card history-card">
+                    <strong>${r.language}</strong>
+                    <br>
+                    Score:
+                    <strong>${r.score}</strong>
+                    <br>
+                    ${r.created_at}
+                </div>
+            `;
+        });
+
+    } catch (err) {
+
+        console.error(err);
+
+        const panel =
+            document.getElementById(
+                "historyPanel"
+            );
+
+        if (panel) {
+            panel.innerHTML =
+                `
+                <div class="card">
+                    Failed to load history.
+                </div>
+                `;
+        }
+    }
+}
+
+function renderScoreCard(c, container) {
+    const el = document.createElement("div");
+    el.className = "card score-card";
+
+    const overall = c.overall != null ? c.overall : 0;
+    const verdict = c.verdict || "";
+
+    let scoreClass = "score-critical";
+    if (overall >= 90) scoreClass = "score-excellent";
+    else if (overall >= 75) scoreClass = "score-good";
+    else if (overall >= 60) scoreClass = "score-acceptable";
+    else if (overall >= 40) scoreClass = "score-needs-work";
+
+    const catRows = (c.categories || []).map(function(cat) {
+        const catScore = cat.score != null ? cat.score : 0;
+        let barClass = "bar-critical";
+        if (catScore >= 90) barClass = "bar-excellent";
+        else if (catScore >= 75) barClass = "bar-good";
+        else if (catScore >= 60) barClass = "bar-acceptable";
+        else if (catScore >= 40) barClass = "bar-needs-work";
+
+        return "<div class=\"score-cat-row\">" +
+            "<div class=\"score-cat-header\">" +
+                "<span class=\"score-cat-name\">" + escapeHtml(cat.name) + "</span>" +
+                "<span class=\"score-cat-weight\">weight " + escapeHtml(String(cat.weight_pct)) + "%</span>" +
+                "<span class=\"score-cat-value\">" + escapeHtml(String(catScore)) + "</span>" +
+            "</div>" +
+            "<div class=\"score-bar-track\"><div class=\"score-bar-fill " + barClass + "\" style=\"width: " + catScore + "%\"></div></div>" +
+            "</div>";
+    }).join("");
+
+    el.innerHTML =
+        "<h3>" + escapeHtml(c.title) + "</h3>" +
+        "<div class=\"score-hero " + scoreClass + "\">" +
+            "<div class=\"score-hero-number\">" + escapeHtml(String(overall)) + "</div>" +
+            "<div class=\"score-hero-details\">" +
+                (c.language ? "<div class=\"score-hero-lang\">" + escapeHtml(c.language) + "</div>" : "") +
+                "<div class=\"score-hero-outof\">out of 100</div>" +
+                "<div class=\"score-hero-verdict\">" + escapeHtml(verdict) + "</div>" +
+            "</div>" +
+        "</div>" +
+        "<div class=\"score-categories\">" + catRows + "</div>";
+
+    container.appendChild(el);
 }
 
 
@@ -260,6 +392,50 @@ function renderCodeCard(component, container) {
 }
 
 
+function renderDiffCard(c, container) {
+    const el = document.createElement("div");
+    el.className = "card diff-card";
+
+    const stats = c.diff && c.diff.stats ? c.diff.stats : {};
+    const lines = c.diff && c.diff.lines ? c.diff.lines : [];
+
+    const statsBar =
+        "<div class=\"diff-stats\">" +
+            "<span class=\"diff-stat added\">+" + escapeHtml(String(stats.added || 0)) + " added</span>" +
+            "<span class=\"diff-stat removed\">-" + escapeHtml(String(stats.removed || 0)) + " removed</span>" +
+            "<span class=\"diff-stat unchanged\">" + escapeHtml(String(stats.unchanged || 0)) + " unchanged</span>" +
+        "</div>";
+
+    const rows = lines.map(function(line) {
+        const leftClass = (line.kind === "removed" || line.kind === "changed") ? "diff-cell-removed" : "diff-cell";
+        const rightClass = (line.kind === "added" || line.kind === "changed") ? "diff-cell-added" : "diff-cell";
+
+        const leftNum = line.left_num != null ? line.left_num : "";
+        const rightNum = line.right_num != null ? line.right_num : "";
+
+        return "<tr>" +
+            "<td class=\"diff-num\">" + escapeHtml(String(leftNum)) + "</td>" +
+            "<td class=\"" + leftClass + "\"><pre>" + escapeHtml(line.left_text || "") + "</pre></td>" +
+            "<td class=\"diff-num\">" + escapeHtml(String(rightNum)) + "</td>" +
+            "<td class=\"" + rightClass + "\"><pre>" + escapeHtml(line.right_text || "") + "</pre></td>" +
+            "</tr>";
+    }).join("");
+
+    el.innerHTML =
+        "<h3>" + escapeHtml(c.title) + "</h3>" +
+        statsBar +
+        "<div class=\"diff-header\">" +
+            "<div class=\"diff-header-side\">Original</div>" +
+            "<div class=\"diff-header-side\">Refactored</div>" +
+        "</div>" +
+        "<div class=\"diff-table-wrap\">" +
+            "<table class=\"diff-table\"><tbody>" + rows + "</tbody></table>" +
+        "</div>";
+
+    container.appendChild(el);
+}
+
+
 function renderUnknown(c, container) {
     const el = document.createElement("div");
     el.className = "card";
@@ -274,3 +450,8 @@ function escapeHtml(str) {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 }
+
+window.addEventListener(
+    "load",
+    loadHistory
+);

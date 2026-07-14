@@ -171,6 +171,116 @@ textarea:focus {
     border: 1px solid #e2e6ee;
 }
 
+/* ========== METRICS GRID ========== */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+}
+
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #f9fbfd;
+    border-radius: 6px;
+    border: 1px solid #eef1f6;
+}
+
+.metric-key {
+    color: #555;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.metric-value {
+    font-weight: 600;
+    color: #333;
+}
+
+/* ========== COMPLEXITY TABLE ========== */
+.fn-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+}
+
+.fn-table th,
+.fn-table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid #eef1f6;
+}
+
+.fn-table th {
+    background: #f4f7fa;
+    font-weight: 600;
+    color: #444;
+}
+
+.fn-table td:first-child {
+    font-family: monospace;
+}
+
+/* ========== FINDINGS ========== */
+.findings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.finding {
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 4px solid #999;
+    background: #fafbfc;
+}
+
+.finding-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.finding-title {
+    font-weight: 600;
+    color: #333;
+}
+
+.finding-meta {
+    font-size: 0.85em;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.finding-body {
+    font-size: 13.5px;
+    color: #444;
+    line-height: 1.5;
+}
+
+.finding-body > div {
+    margin: 2px 0;
+}
+
+.finding.severity-critical { border-left-color: #dc3545; background: #fff5f5; }
+.finding.severity-high     { border-left-color: #fd7e14; background: #fff8f2; }
+.finding.severity-medium   { border-left-color: #ffc107; background: #fffdf3; }
+.finding.severity-low      { border-left-color: #17a2b8; background: #f4fbfd; }
+.finding.severity-info     { border-left-color: #6c757d; background: #f7f8f9; }
+
+.no-findings {
+    color: #28a745;
+    font-style: italic;
+    padding: 8px;
+}
+
 /* ========== REFACTOR CARD ========== */
 .code-card {
     background: #f7f9fc;
@@ -209,76 +319,314 @@ textarea:focus {
     50% { opacity: 1; }
 }
 
+/* ========== COMPANY RULE ENGINE ========== */
+.rule-summary {
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.rule-summary.rule-pass-full { background: #d4edda; color: #155724; }
+.rule-summary.rule-pass-mid  { background: #fff3cd; color: #856404; }
+.rule-summary.rule-pass-low  { background: #f8d7da; color: #721c24; }
+
+.rule-list {
+    margin-bottom: 15px;
+}
+
+.rule-row {
+    padding: 8px 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.rule-row:last-child {
+    border-bottom: none;
+}
+
+.rule-badge {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.8em;
+    letter-spacing: 0.5px;
+}
+
+.rule-badge.pass { background: #28a745; color: white; }
+.rule-badge.fail { background: #dc3545; color: white; }
+
+.rule-name       { font-family: monospace; font-weight: 500; }
+.rule-threshold  { color: #666; font-size: 0.9em; }
+.rule-finding-count { color: #dc3545; font-size: 0.9em; font-weight: 500; }
+
+/* ========== ENGINEERING SCORE ========== */
+.score-card {
+    padding-bottom: 20px;
+}
+
+.score-hero {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 15px 0 20px 0;
+    color: white;
+}
+
+.score-hero-number {
+    font-size: 3.5em;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.score-hero-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.score-hero-outof {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.score-hero-verdict {
+    font-size: 1.4em;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.score-excellent    { background: #1e7e34; }
+.score-good         { background: #28a745; }
+.score-acceptable   { background: #ffc107; color: #333; }
+.score-needs-work   { background: #fd7e14; }
+.score-critical     { background: #dc3545; }
+
+.score-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.score-cat-row {
+    padding: 0;
+}
+
+.score-cat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+    font-size: 0.95em;
+}
+
+.score-cat-name    { font-weight: 600; color: #333; }
+.score-cat-weight  { color: #888; font-size: 0.85em; }
+.score-cat-value   { font-weight: bold; color: #333; min-width: 30px; text-align: right; }
+
+.score-bar-track {
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.score-bar-fill {
+    height: 100%;
+    transition: width 0.4s ease;
+}
+
+.bar-excellent   { background: #1e7e34; }
+.bar-good        { background: #28a745; }
+.bar-acceptable  { background: #ffc107; }
+.bar-needs-work  { background: #fd7e14; }
+.bar-critical    { background: #dc3545; }
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 600px) {
     header h1 { font-size: 22px; }
     textarea { height: 180px; }
     main { padding: 0 16px; }
 }
-@'
 
-/* Company Rule Engine styles */
-.rule-summary {
-    padding: 12px;
-    border-radius: 6px;
-    margin-bottom: 15px;
+
+/* ========== DIFF CARD ========== */
+.diff-card {
+    padding-bottom: 20px;
 }
-.rule-summary.rule-pass-full { background: #d4edda; color: #155724; }
-.rule-summary.rule-pass-mid { background: #fff3cd; color: #856404; }
-.rule-summary.rule-pass-low { background: #f8d7da; color: #721c24; }
 
-.rule-list { margin-bottom: 15px; }
-.rule-row {
-    padding: 8px 10px;
-    border-bottom: 1px solid #eee;
+.diff-stats {
     display: flex;
-    gap: 10px;
-    align-items: center;
+    gap: 12px;
+    margin: 10px 0 15px 0;
+    font-size: 13px;
     flex-wrap: wrap;
 }
-.rule-row:last-child { border-bottom: none; }
-.rule-badge {
-    padding: 3px 10px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 0.8em;
-    letter-spacing: 0.5px;
-}
-.rule-badge.pass { background: #28a745; color: white; }
-.rule-badge.fail { background: #dc3545; color: white; }
-.rule-name { font-family: monospace; font-weight: 500; }
-.rule-threshold { color: #666; font-size: 0.9em; }
-.rule-finding-count { color: #dc3545; font-size: 0.9em; font-weight: 500; }
-'@ | Add-Content -Encoding UTF8 static\style.css
-/* Company Rule Engine styles */
-.rule-summary {
-    padding: 12px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-}
-.rule-summary.rule-pass-full { background: #d4edda; color: #155724; }
-.rule-summary.rule-pass-mid { background: #fff3cd; color: #856404; }
-.rule-summary.rule-pass-low { background: #f8d7da; color: #721c24; }
 
-.rule-list { margin-bottom: 15px; }
-.rule-row {
-    padding: 8px 10px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-.rule-row:last-child { border-bottom: none; }
-.rule-badge {
-    padding: 3px 10px;
+.diff-stat {
+    padding: 4px 10px;
     border-radius: 4px;
-    font-weight: bold;
-    font-size: 0.8em;
-    letter-spacing: 0.5px;
+    font-weight: 600;
+    font-family: monospace;
 }
-.rule-badge.pass { background: #28a745; color: white; }
-.rule-badge.fail { background: #dc3545; color: white; }
-.rule-name { font-family: monospace; font-weight: 500; }
-.rule-threshold { color: #666; font-size: 0.9em; }
-.rule-finding-count { color: #dc3545; font-size: 0.9em; font-weight: 500; }
+
+.diff-stat.added     { background: #d4edda; color: #155724; }
+.diff-stat.removed   { background: #f8d7da; color: #721c24; }
+.diff-stat.unchanged { background: #e9ecef; color: #495057; }
+
+.diff-header {
+    display: grid;
+    grid-template-columns: 40px 1fr 40px 1fr;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 6px 0;
+    border-bottom: 2px solid #e2e6ee;
+}
+
+.diff-header-side {
+    padding-left: 40px;
+    font-weight: 600;
+}
+
+.diff-header-side:first-of-type {
+    grid-column: 2;
+}
+
+.diff-header-side:last-of-type {
+    grid-column: 4;
+}
+
+.diff-table-wrap {
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #e2e6ee;
+    border-radius: 6px;
+    margin-top: 4px;
+}
+
+.diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 12.5px;
+    line-height: 1.4;
+}
+
+.diff-table td {
+    vertical-align: top;
+    padding: 0;
+}
+
+.diff-num {
+    width: 40px;
+    padding: 2px 8px !important;
+    text-align: right;
+    color: #999;
+    background: #f4f7fa;
+    border-right: 1px solid #e2e6ee;
+    user-select: none;
+    font-size: 11px;
+}
+
+.diff-cell,
+.diff-cell-added,
+.diff-cell-removed {
+    padding: 2px 12px !important;
+    border-right: 1px solid #e2e6ee;
+    white-space: pre;
+}
+
+.diff-cell pre,
+.diff-cell-added pre,
+.diff-cell-removed pre {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+    white-space: pre;
+    overflow: visible;
+}
+
+.diff-cell         { background: white; }
+.diff-cell-added   { background: #e6ffed; }
+.diff-cell-removed { background: #ffeef0; }
+
+
+/* ========== LANGUAGE LABEL ON SCORE CARD ========== */
+.score-hero-lang {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.25);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+/* ===================================== */
+/* DAY 7 - REVIEW HISTORY                */
+/* ===================================== */
+
+.history-section {
+    margin-top: 40px;
+}
+
+.history-section h2 {
+    color: #007bff;
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.history-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.history-card {
+    transition: all 0.2s ease;
+}
+
+.history-card:hover {
+    transform: translateY(-2px);
+}
+
+.history-card strong {
+    color: #007bff;
+}
+
+/* ===================================== */
+/* HISTORY SCORE BADGES                  */
+/* ===================================== */
+
+.history-score {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.history-score.good {
+    background: #d4edda;
+    color: #155724;
+}
+
+.history-score.medium {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.history-score.bad {
+    background: #f8d7da;
+    color: #721c24;
+}

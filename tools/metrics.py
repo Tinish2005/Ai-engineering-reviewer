@@ -1,4 +1,24 @@
-def analyze_metrics(code: str) -> dict:
+from .language_detector import detect_language
+from .lang_java import analyze_java_metrics
+from .lang_c_cpp import analyze_c_metrics
+
+
+def analyze_metrics(code: str, language: str = None) -> dict:
+    """
+    Compute size and structure metrics.
+    If language is not provided, it will be auto-detected.
+    """
+    if language is None:
+        language = detect_language(code)
+
+    if language == "java":
+        return analyze_java_metrics(code)
+    if language == "c":
+        return analyze_c_metrics(code, is_cpp=False)
+    if language == "cpp":
+        return analyze_c_metrics(code, is_cpp=True)
+
+    # Default: Python analysis
     lines = code.splitlines()
     total = len(lines)
     blank = sum(1 for line in lines if not line.strip())

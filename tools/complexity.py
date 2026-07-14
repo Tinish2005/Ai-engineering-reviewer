@@ -1,5 +1,9 @@
 import ast
 
+from .language_detector import detect_language
+from .lang_java import analyze_java_complexity
+from .lang_c_cpp import analyze_c_complexity
+
 
 _DECISION_NODES = (
     ast.If, ast.For, ast.While, ast.ExceptHandler,
@@ -34,7 +38,20 @@ def _cognitive_for_function(func_node):
     return score
 
 
-def analyze_complexity(code: str) -> dict:
+def analyze_complexity(code: str, language: str = None) -> dict:
+    """
+    Compute complexity metrics.
+    Python uses AST analysis; other languages use regex heuristics.
+    """
+    if language is None:
+        language = detect_language(code)
+
+    if language == "java":
+        return analyze_java_complexity(code)
+    if language in ("c", "cpp"):
+        return analyze_c_complexity(code)
+
+    # Python AST-based analysis
     findings = []
     functions = []
 

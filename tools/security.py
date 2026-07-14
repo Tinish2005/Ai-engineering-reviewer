@@ -1,3 +1,8 @@
+from .language_detector import detect_language
+from .lang_java import check_java_security
+from .lang_c_cpp import check_c_cpp_security
+
+
 _PATTERNS = [
     {
         "pattern": "eval(",
@@ -42,7 +47,20 @@ _PATTERNS = [
 ]
 
 
-def check_security(code: str) -> list:
+def check_security(code: str, language: str = None) -> list:
+    """
+    Detect risky security patterns.
+    Dispatches to language-specific checker.
+    """
+    if language is None:
+        language = detect_language(code)
+
+    if language == "java":
+        return check_java_security(code)
+    if language in ("c", "cpp"):
+        return check_c_cpp_security(code)
+
+    # Python (and unknown, as fallback)
     findings = []
     lines = code.splitlines()
     for entry in _PATTERNS:
