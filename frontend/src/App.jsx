@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Header from "./components/Header";
 import DashboardStats from "./components/DashboardStats";
 import MonacoEditor from "./components/MonacoEditor";
 import A2UIRenderer from "./components/A2UIRenderer";
+import HistoryChart from "./components/HistoryChart";
+import ExportButtons from "./components/ExportButtons";
 
-import { runReview } from "./api/reviewApi";
+import {
+  runReview,
+  generateRefactor,
+  getHistory,
+} from "./api/reviewApi";
 
 import "./index.css";
 
@@ -15,7 +21,28 @@ function App() {
 `);
 
   const [result, setResult] = useState(null);
+  const [history, setHistory] = useState([]);
+
   const [loading, setLoading] = useState(false);
+
+  const [refactoredCode, setRefactoredCode] =
+    useState("");
+
+  const [refactorLoading, setRefactorLoading] =
+    useState(false);
+
+  useEffect(() => {
+    async function loadHistory() {
+      try {
+        const data = await getHistory();
+        setHistory(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadHistory();
+  }, []);
 
   async function handleReview() {
     try {
@@ -23,15 +50,38 @@ function App() {
 
       const data = await runReview(code);
 
-      console.log(data);
-
       setResult(data);
     } catch (err) {
       console.error(err);
 
-      alert("Failed to connect to Flask backend");
+      alert(
+        "Failed to connect to Flask backend"
+      );
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleRefactor() {
+    try {
+      setRefactorLoading(true);
+
+      const data =
+        await generateRefactor(
+          code
+        );
+
+      setRefactoredCode(
+        data.code || ""
+      );
+    } catch (err) {
+      console.error(err);
+
+      alert(
+        "Failed to generate refactor"
+      );
+    } finally {
+      setRefactorLoading(false);
     }
   }
 
@@ -44,7 +94,8 @@ function App() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "2fr 1fr",
+          gridTemplateColumns:
+            "2fr 1fr",
           gap: "24px",
           marginBottom: "24px",
           alignItems: "start",
@@ -58,7 +109,9 @@ function App() {
         </div>
 
         <div className="card">
-          <h2>Project Insights</h2>
+          <h2>
+            Project Insights
+          </h2>
 
           <p
             style={{
@@ -66,22 +119,43 @@ function App() {
               marginBottom: "20px",
             }}
           >
-            MCP-Powered Engineering Intelligence
+            MCP-Powered Engineering
+            Intelligence
           </p>
 
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
+              flexDirection:
+                "column",
               gap: "12px",
             }}
           >
-            <div>✅ Multi-Language Analysis</div>
-            <div>✅ Security Review</div>
-            <div>✅ Complexity Detection</div>
-            <div>✅ AI Reasoning Engine</div>
-            <div>✅ Company Rule Validation</div>
-            <div>✅ Engineering Score</div>
+            <div>
+              ✅ Multi-Language
+              Analysis
+            </div>
+
+            <div>
+              ✅ Security Review
+            </div>
+
+            <div>
+              ✅ Complexity Detection
+            </div>
+
+            <div>
+              ✅ AI Reasoning Engine
+            </div>
+
+            <div>
+              ✅ Company Rule
+              Validation
+            </div>
+
+            <div>
+              ✅ Engineering Score
+            </div>
           </div>
         </div>
       </div>
@@ -100,16 +174,20 @@ function App() {
           style={{
             background: loading
               ? "#6b7280"
-              : "#2563eb",
+              : "linear-gradient(135deg,#2563eb,#1d4ed8)",
             color: "white",
             border: "none",
-            padding: "14px 28px",
-            borderRadius: "12px",
+            padding:
+              "14px 32px",
+            borderRadius:
+              "12px",
             fontSize: "16px",
-            fontWeight: "600",
+            fontWeight: "700",
             cursor: loading
               ? "not-allowed"
               : "pointer",
+            boxShadow:
+              "0 8px 20px rgba(37,99,235,.3)",
           }}
         >
           {loading
@@ -118,34 +196,86 @@ function App() {
         </button>
 
         <button
-          disabled
+          onClick={handleRefactor}
+          disabled={
+            refactorLoading
+          }
           style={{
-            background: "#16a34a",
+            background:
+              "linear-gradient(135deg,#16a34a,#15803d)",
             color: "white",
             border: "none",
-            padding: "14px 28px",
-            borderRadius: "12px",
+            padding:
+              "14px 32px",
+            borderRadius:
+              "12px",
             fontSize: "16px",
-            fontWeight: "600",
-            opacity: 0.6,
-            cursor: "not-allowed",
+            fontWeight: "700",
+            cursor: "pointer",
+            boxShadow:
+              "0 8px 20px rgba(22,163,74,.3)",
           }}
         >
-          🚧 Generate Refactor (Coming Soon)
+          {refactorLoading
+            ? "🔄 Refactoring..."
+            : "✨ Generate Refactor"}
         </button>
       </div>
 
       {loading && (
         <div className="loading-banner">
-          🔄 Running AI Engineering Review...
+          🔄 Running AI
+          Engineering Review...
+        </div>
+      )}
+
+      {refactorLoading && (
+        <div className="loading-banner">
+          ✨ Generating
+          Refactored Code...
         </div>
       )}
 
       {result?.components && (
         <A2UIRenderer
-          components={result.components}
+          components={
+            result.components
+          }
         />
       )}
+
+      {refactoredCode && (
+        <div className="card">
+          <h2>
+            ✨ Refactored Code
+          </h2>
+
+          <pre
+            style={{
+              whiteSpace:
+                "pre-wrap",
+              overflowX: "auto",
+              background:
+                "#111827",
+              padding: "16px",
+              borderRadius:
+                "12px",
+              color:
+                "#e5e7eb",
+              border:
+                "1px solid #374151",
+            }}
+          >
+            {refactoredCode}
+          </pre>
+        </div>
+      )}
+
+      <HistoryChart
+        history={history}
+      />
+
+      <ExportButtons />
     </div>
   );
 }

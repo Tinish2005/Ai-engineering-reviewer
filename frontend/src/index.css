@@ -427,3 +427,67 @@ body {
   padding: 16px;
   border-radius: 10px;
 }
+.export-btn {
+  border: none;
+  padding: 14px 24px;
+  border-radius: 12px;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.export-btn:hover {
+  transform: translateY(-2px);
+}
+
+.json-btn {
+  background: #2563eb;
+}
+
+.md-btn {
+  background: #7c3aed;
+}
+
+.pdf-btn {
+  background: #dc2626;
+}
+.export-btn {
+  border: none;
+  padding: 14px 24px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.export-btn:hover {
+  transform: translateY(-2px);
+}
+
+.json-btn {
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #1d4ed8
+  );
+}
+
+.md-btn {
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #6d28d9
+  );
+}
+
+.pdf-btn {
+  background: linear-gradient(
+    135deg,
+    #dc2626,
+    #b91c1c
+  );
+}
