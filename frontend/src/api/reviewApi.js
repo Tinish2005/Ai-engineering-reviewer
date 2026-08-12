@@ -1,5 +1,6 @@
 import axios from "axios";
-const API_BASE =
+
+const API =
   "https://ai-engineering-reviewer.onrender.com";
 
 export async function runReview(code) {
@@ -13,9 +14,7 @@ export async function runReview(code) {
   return response.data;
 }
 
-export async function generateRefactor(
-  code
-) {
+export async function generateRefactor(code) {
   const response = await axios.post(
     `${API}/refactor`,
     {
@@ -25,6 +24,7 @@ export async function generateRefactor(
 
   return response.data;
 }
+
 export async function getHistory() {
   const response = await axios.get(
     `${API}/history`
