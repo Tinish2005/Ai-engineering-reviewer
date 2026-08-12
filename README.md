@@ -6,16 +6,28 @@ The platform evaluates code quality across security, complexity, maintainability
 
 ---
 
+## Live Demo
+
+### Frontend
+https://ai-engineering-reviewer.vercel.app
+
+### Backend API
+https://ai-engineering-reviewer.onrender.com
+
 ## Features
 
-### Engineering Analysis
-
-- Engineering Score (0–100)
+- MCP-Powered Architecture
 - Security Analysis
 - Complexity Analysis
 - Maintainability Analysis
-- Company Rule Validation
-- AI Engineering Reasoning
+- Company Rules Engine
+- AI Reasoning (Gemini)
+- LangFuse Observability
+- Verified Refactor
+- Multi-Language Support
+- PDF Export
+- Review History
+
 
 ### Multi-Language Support
 
