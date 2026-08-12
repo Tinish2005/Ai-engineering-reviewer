@@ -1,5 +1,7 @@
 import sys
+from flask import send_file
 from flask_cors import CORS
+
 
 print("STEP 1: app.py starting", flush=True)
 
@@ -26,8 +28,7 @@ try:
         get_recent_reviews,
         get_review,
     )
-
-    print("STEP 5: history imported", flush=True)
+  
 
     from tools.exporter import (
         export_json,
@@ -44,6 +45,7 @@ try:
 
     app = Flask(__name__)
     CORS(app)
+    
 
     print("STEP 8: Flask app created", flush=True)
 
@@ -117,8 +119,9 @@ try:
 
         return jsonify(result)
 
-    # =================================================
-    # REFACTOR
+
+        # =================================================
+    # VERIFIED REFACTOR
     # =================================================
 
     @app.route("/refactor", methods=["POST"])
@@ -138,11 +141,48 @@ try:
 
         try:
 
-            refactored = mcp_client.call_tool(
+            # Original review
+            result = mcp_client.call_tool(
+                "full_review",
+                {
+                    "code": code,
+                },
+            )
+
+            original_review = result
+
+            original_score = 0
+
+            for component in original_review["components"]:
+                if component["type"] == "score_card":
+                    original_score = component["overall"]
+                    break
+
+            # Generate refactored code
+            refactored_code = mcp_client.call_tool(
                 "generate_refactored_code",
                 {
                     "code": code,
                 },
+            )
+
+            # Review refactored code
+            refactored_review = mcp_client.call_tool(
+                "full_review",
+                {
+                    "code": refactored_code,
+                },
+            )
+
+            refactored_score = 0
+
+            for component in refactored_review["components"]:
+                if component["type"] == "score_card":
+                    refactored_score = component["overall"]
+                    break
+
+            score_delta = (
+                refactored_score - original_score
             )
 
         except Exception as e:
@@ -150,17 +190,30 @@ try:
             return jsonify(
                 {
                     "type": "error",
-                    "message": f"MCP call failed: {e}",
+                    "message": f"Verified refactor failed: {e}",
                 }
             ), 500
 
         return jsonify(
             {
-                "type": "code_card",
-                "title": "Refactored Code",
-                "code": refactored,
+                "type": "verified_refactor",
+
+                "original_code": code,
+
+                "refactored_code": refactored_code,
+
+                "original_review": original_review,
+
+                "refactored_review": refactored_review,
+
+                "original_score": original_score,
+
+                "refactored_score": refactored_score,
+
+                "score_delta": score_delta,
             }
         )
+
 
     # =================================================
     # HISTORY
@@ -172,7 +225,7 @@ try:
             get_recent_reviews()
         )
 
-    # =================================================
+        # =================================================
     # EXPORT JSON
     # =================================================
 
@@ -192,10 +245,9 @@ try:
             review["result"]
         )
 
-        return jsonify(
-            {
-                "file": path,
-            }
+        return send_file(
+            path,
+            as_attachment=True
         )
 
     # =================================================
@@ -218,10 +270,9 @@ try:
             review["result"]
         )
 
-        return jsonify(
-            {
-                "file": path,
-            }
+        return send_file(
+            path,
+            as_attachment=True
         )
 
     # =================================================
@@ -244,10 +295,9 @@ try:
             review["result"]
         )
 
-        return jsonify(
-            {
-                "file": path,
-            }
+        return send_file(
+            path,
+            as_attachment=True
         )
 
     # =================================================
