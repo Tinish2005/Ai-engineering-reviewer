@@ -30,6 +30,9 @@ function App() {
 
   const [refactorLoading, setRefactorLoading] =
     useState(false);
+  const [verifiedRefactor, setVerifiedRefactor] =
+  useState(null);
+
 
   useEffect(() => {
     async function loadHistory() {
@@ -47,10 +50,17 @@ function App() {
   async function handleReview() {
     try {
       setLoading(true);
-
       const data = await runReview(code);
 
-      setResult(data);
+setResult(data);
+
+const updatedHistory =
+  await getHistory();
+  console.log(updatedHistory.length);
+
+setHistory(updatedHistory);
+
+      
     } catch (err) {
       console.error(err);
 
@@ -63,33 +73,49 @@ function App() {
   }
 
   async function handleRefactor() {
-    try {
-      setRefactorLoading(true);
+  try {
+    setRefactorLoading(true);
 
-      const data =
-        await generateRefactor(
-          code
-        );
-
-      setRefactoredCode(
-        data.code || ""
+    const data =
+      await generateRefactor(
+        code
       );
-    } catch (err) {
-      console.error(err);
 
-      alert(
-        "Failed to generate refactor"
-      );
-    } finally {
-      setRefactorLoading(false);
-    }
+    console.log(data);
+
+    setVerifiedRefactor(data);
+
+    setRefactoredCode(
+      data.refactored_code || ""
+    );
+
+  } catch (err) {
+    console.error(err);
+
+    alert(
+      "Failed to generate refactor"
+    );
+  } finally {
+    setRefactorLoading(false);
   }
+}
 
   return (
     <div className="app">
       <Header />
 
-      <DashboardStats />
+      <DashboardStats
+  reviews={history.length}
+  bestScore={
+    history.length
+      ? Math.max(
+          ...history.map(
+            (item) => item.score
+          )
+        )
+      : 0
+  }
+/>
 
       <div
         style={{
@@ -243,7 +269,37 @@ function App() {
           }
         />
       )}
+      {verifiedRefactor && (
+  <div className="card">
+    <h2>
+      ✅ Verified Refactor
+    </h2>
 
+    <p>
+      Original Score:
+      {" "}
+      <strong>
+        {verifiedRefactor.original_score}
+      </strong>
+    </p>
+
+    <p>
+      Refactored Score:
+      {" "}
+      <strong>
+        {verifiedRefactor.refactored_score}
+      </strong>
+    </p>
+
+    <p>
+      Improvement:
+      {" "}
+      <strong>
+        {verifiedRefactor.score_delta}
+      </strong>
+    </p>
+  </div>
+)}
       {refactoredCode && (
         <div className="card">
           <h2>

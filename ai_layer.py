@@ -3,6 +3,7 @@ import json
 import time
 from dotenv import load_dotenv
 from google import genai
+from langfuse_client import langfuse
 
 # Load API key
 load_dotenv()
@@ -16,58 +17,153 @@ client = genai.Client(api_key=GEMINI_KEY)
 # ------------------------------------------------------------
 # 1. AI Reasoning (used by /review)
 # ------------------------------------------------------------
-
 def generate_review_reasoning(review_data: dict) -> dict:
     """Uses Gemini to explain and prioritize the review findings."""
 
+    try:
+        langfuse.create_event(
+            name="review_reasoning_started",
+            body={
+                "pipeline": "engineering_review"
+            }
+        )
+        langfuse.flush()
+
+    except Exception:
+        pass
+
     prompt = f"""
-    You are an engineering review assistant.
+You are an engineering review assistant.
 
-    Given deterministic review data:
-    Metrics, Complexity, Security, Maintainability
+Given deterministic review data:
+Metrics, Complexity, Security, Maintainability
 
-    Do NOT recompute metrics.
+Do NOT recompute metrics.
 
-    Your job:
-    1. Explain findings clearly
-    2. Prioritize the most important issues
-    3. Suggest actionable improvements
-    4. Provide a final summary
+Your job:
+1. Explain findings clearly
+2. Prioritize the most important issues
+3. Suggest actionable improvements
+4. Provide a final summary
 
-    Return JSON with these keys:
-    - "summary"
-    - "priority_issues" (list)
-    - "suggestions" (list)
+Return ONLY valid JSON in this exact format:
 
-    Analysis:
-    {review_data}
-    """
+{{
+  "summary": "overall summary",
+
+  "priority_issues": [
+    {{
+      "title": "issue title",
+      "severity": "critical|high|medium|low",
+      "reason": "why this is a problem",
+      "impact": "business or technical impact"
+    }}
+  ],
+
+  "suggestions": [
+    {{
+      "area": "Security|Complexity|Maintainability|Rules",
+      "recommendation": "specific recommendation",
+      "related_issue": "title of related issue"
+    }}
+  ]
+}}
+
+Analysis:
+{review_data}
+"""
 
     attempts = 0
     response = None
+
     while attempts < 3:
         try:
-            response = client.models.generate_content(
+
+            with langfuse.start_as_current_observation(
+                name="generate_review_reasoning",
+                as_type="generation",
+                input=prompt,
                 model="gemini-2.5-flash",
-                contents=prompt,
-            )
+                end_on_exit=True,
+            ) as observation:
+
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt,
+                )
+
+                try:
+                    observation.update(
+                        output=response.text
+                    )
+                except Exception:
+                    pass
+
+            try:
+                langfuse.create_event(
+                    name="review_reasoning_success",
+                    body={
+                        "status": "success"
+                    }
+                )
+            except Exception:
+                pass
+
+            langfuse.flush()
+
             break
+
         except Exception as e:
+
+            try:
+                langfuse.create_event(
+                    name="review_reasoning_failed",
+                    body={
+                        "error": str(e),
+                        "error_type": type(e).__name__
+                    }
+                )
+                langfuse.flush()
+
+            except Exception:
+                pass
+
             attempts += 1
+
             if attempts == 3:
                 return {
                     "summary": f"Gemini reasoning error after 3 retries: {str(e)}",
-                    "priority_issues": [],
-                    "suggestions": []
+                    "priority_issues": [
+                        {
+                            "title": "AI Reasoning Unavailable",
+                            "severity": "medium",
+                            "reason": "Gemini request failed.",
+                            "impact": "Detailed AI explanations could not be generated."
+                        }
+                    ],
+                    "suggestions": [
+                        {
+                            "area": "General",
+                            "recommendation":
+                                "Review deterministic findings and retry AI reasoning later.",
+                            "related_issue":
+                                "AI Reasoning Unavailable"
+                        }
+                    ]
                 }
+
             time.sleep(2)
 
     text = response.text.strip()
+
     try:
         clean = text.strip("`")
+
         if clean.lower().startswith("json"):
             clean = clean[4:].strip()
+
         return json.loads(clean)
+
     except Exception:
         return {
             "summary": text,

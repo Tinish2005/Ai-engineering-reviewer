@@ -11,6 +11,7 @@
 
 from ai_layer import generate_review_reasoning
 from tools.history import save_review
+from langfuse_client import langfuse
 
 
 def run_review(code: str) -> dict:
@@ -58,6 +59,31 @@ def run_review(code: str) -> dict:
     reasoning = generate_review_reasoning(
         review_data
     )
+
+    # -------------------------------------------------
+    # LangFuse Review Analytics (Package 3)
+    # -------------------------------------------------
+    try:
+        langfuse.create_event(
+            name="review_analytics",
+            body={
+                "language": language,
+                "engineering_score": score["overall"],
+                "security_findings": len(security_findings),
+                "maintainability_findings": len(
+                    maintainability["findings"]
+                ),
+                "complexity_verdict": complexity["verdict"],
+                "rules_failed": rule_check["rules_failed"]
+            }
+        )
+
+        langfuse.flush()
+
+        print("LANGFUSE REVIEW ANALYTICS SENT")
+
+    except Exception as e:
+        print("LANGFUSE REVIEW ANALYTICS ERROR:", e)
 
     review_result = {
         "type": "review",
