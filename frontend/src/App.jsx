@@ -62,12 +62,18 @@ setHistory(updatedHistory);
 
       
     } catch (err) {
-      console.error(err);
+  console.error("FULL ERROR:", err);
 
-      alert(
-        "Failed to connect to Flask backend"
-      );
-    } finally {
+  alert(
+    JSON.stringify(
+      err?.response?.data ||
+      err?.message ||
+      err,
+      null,
+      2
+    )
+  );
+} finally {
       setLoading(false);
     }
   }
