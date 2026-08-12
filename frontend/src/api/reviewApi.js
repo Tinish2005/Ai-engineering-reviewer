@@ -1,6 +1,6 @@
 import axios from "axios";
-
-const API = "http://127.0.0.1:5000";
+const API_BASE =
+  "https://ai-engineering-reviewer.onrender.com";
 
 export async function runReview(code) {
   const response = await axios.post(
